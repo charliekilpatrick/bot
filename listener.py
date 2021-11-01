@@ -147,22 +147,20 @@ class listener(object):
         return(resp)
 
     def getSlackToken(self):
-        with open(self.token_file) as f:
-            token = f.readline().replace('\n', '')
-            os.environ['SLACK_TOKEN'] = token
-
+        if os.path.exists(self.token_file):
+            with open(self.token_file) as f:
+                token = f.readline().replace('\n', '')
+                os.environ['SLACK_TOKEN'] = token
+        else:
+            token_file = self.token_file
+            print(f'WARNING: token file {token_file} does not exist.')
+            print('Create token file or manually set SLACK_TOKEN variable.')
 
     def setUpSlack(self):
         from slack_sdk import WebClient as slackclient
         self.getSlackToken()
         client = slackclient(os.environ.get('SLACK_TOKEN'))
 
-        # Create Slack channel with specific topic
-        #kwargs = {'channel': self.channel,
-        #          'username': self.botname,
-        #          'icon_url': 'https://ziggy.ucolick.org/ckilpatrick/images/'+\
-        #            'icon.jpg',
-        #           }
         kwargs={}
 
         resp = self.slackCommand(client, 'conversations.list', **kwargs)
